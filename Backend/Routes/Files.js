@@ -4,7 +4,7 @@ const fs = require('fs');
 const multer = require('multer');
 const iconv = require('iconv-lite');
 
-const storage = multer.diskStorage({
+const diskStorage = multer.diskStorage({
    destination: (req, file, cb) => {
       let dir = "uploads/";
       //clasificación por tipo de archivo
@@ -54,7 +54,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-   storage: storage,
+   storage: diskStorage,
    limits: {
       fileSize: 1024 * 1024 * 30
    },
@@ -105,7 +105,7 @@ router.get("/", async (req, res) => {
    }
 })
 
-router.post("/oneFile", upload.single("file"), async (req, res) => {
+router.post("/single", upload.single("file"), async (req, res) => {
    try {
       const uploadedFile = {
          name: req.file.filename,
@@ -122,7 +122,7 @@ router.post("/oneFile", upload.single("file"), async (req, res) => {
    }
 })
 
-router.post("/multipleFiles", upload.array("files", 10), async (req, res) => {
+router.post("/multiple", upload.array("files", 10), async (req, res) => {
    try {
       for(const file of req.files) {
          const uploadedFile = {
@@ -136,6 +136,52 @@ router.post("/multipleFiles", upload.array("files", 10), async (req, res) => {
          await newFile.save();
       }
       return res.status(200).send("Archivos cargados con éxito");
+   } catch (error) {
+      return res.status(405).json({ name: error.name, message: error.message });
+   }
+})
+
+router.patch("/", upload.single("file"), async (req, res) => {
+   try {
+      const file = await Files.findById(req.body.id);
+      if (!file) {
+         return res.status(404).send('Archivo no encontrado');
+      }
+      fs.unlink(file.path, (err) => {
+         if(err) res.status(500).send('Error al borrar el archivo');
+         else {
+            console.log('Archivo borrado');
+         }
+      })
+      const uploadedFile = {
+         name: req.file.filename,
+         path: req.file.path,
+         size: req.file.size,
+         mimetype: req.file.mimetype,
+         encoding: req.file.encoding
+      }
+      Object.assign(file, uploadedFile);
+      await file.save();
+      return res.status(200).send("Archivo actualizado con éxito");
+   } catch (error) {
+      return res.status(405).json({ name: error.name, message: error.message });
+   }
+})
+
+router.delete("/", async (req, res) => {
+   try {
+      const file = await Files.findById(req.body.id);
+      if (!file) {
+         return res.status(404).send('Archivo no encontrado');
+      }
+      fs.unlink(file.path, (err) => {
+         if(err) res.status(500).send('Error al borrar el archivo');
+         else {
+            console.log('Archivo borrado');
+         }
+      })
+      await Files.findByIdAndDelete(req.body.id);
+      return res.status(200).send('Archivo eliminado con éxito');
    } catch (error) {
       return res.status(405).json({ name: error.name, message: error.message });
    }
