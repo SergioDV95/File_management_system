@@ -178,10 +178,10 @@ router.delete("/", async (req, res) => {
          if(err) res.status(500).send('Error al borrar el archivo');
          else {
             console.log('Archivo borrado');
+            Files.findByIdAndDelete(req.body.id)
+               .then(() => res.status(200).send("Archivo eliminado con éxito"));
          }
       })
-      await Files.findByIdAndDelete(req.body.id);
-      return res.status(200).send('Archivo eliminado con éxito');
    } catch (error) {
       return res.status(405).json({ name: error.name, message: error.message });
    }
