@@ -10,22 +10,15 @@ const fileSchema = new Schema({
          message: 'Invalid name'
       },
       required: true
-
    },
    path: {
       type: String,
       trim: true,
       required: true
    },
-   size: {
-      type: Number
-   },
-   mimetype: {
-      type: String
-   },
-   encoding: {
-      type: String
-   }
+   size: Number,
+   mimetype: String,
+   encoding: String
 }, {
    timestamps: true
 })
