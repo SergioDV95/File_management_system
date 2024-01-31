@@ -65,7 +65,7 @@ const upload = multer({
       if (file.mimetype === excel || file.mimetype === word || file.mimetype === pdf || file.mimetype.startsWith("image")) {
          if (file.mimetype.startsWith("application")) {
             if (file.size > 1000 * 1000 * 30) {
-               //si el archivo word, excel o pdf es mayor de 30MB lanza error y se rechaza
+               //si el archivo word, excel o pdf es mayor de 30MB lo rechaza y lanza error
                cb(new Error("El archivo es demasiado grande"), false);
             } else {
                //sino, continua
@@ -73,7 +73,7 @@ const upload = multer({
             }
          } else {
             if (file.size > 1000 * 1000 * 5) {
-               //si el archivo de imagen es mayor de 5MB lanza error y se rechaza
+               //si el archivo de imagen es mayor de 5MB lo rechaza y lanza error
                cb(new Error("El archivo es demasiado grande"), false);
             } else {
                //sino, continua
@@ -81,7 +81,7 @@ const upload = multer({
             }
          }
       } else {
-         //si el archivo no es excel, word, pdf o imagen, lanza error y se rechaza
+         //si el archivo no es excel, word, pdf o imagen, lo rechaza y lanza error
          cb(new Error("Tipo de archivo no permitido"), false)
       }
    }
