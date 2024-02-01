@@ -89,17 +89,22 @@ const upload = multer({
 
 router.get("/", async (req, res) => {
    try {
-      const file = await Files.findOne({ name: req.query.name });
-      if (!file) {
-         return res.status(404).send('Archivo no encontrado');
-      }
-      return res.status(200).download(file.path, file.name, (err) => {
-         if (err) {
-            return res.status(500).send('Error al descargar el archivo');
-         } else {
-            return res.status(200).send('Archivo descargado con éxito');
+      if (req.query.name) {
+         const file = await Files.findOne({ name: req.query.name });
+         if(!file) {
+            return res.status(404).send('Archivo no encontrado');
          }
-      });
+         return res.status(200).download(file.path, file.name, (err) => {
+            if(err) {
+               return res.status(500).json({name: 'Download', message: 'Error al descargar el archivo'});
+            } else {
+               return res.status(200).send('Archivo descargado con éxito');
+            }
+         });
+      } else {
+         const files = await Files.find();
+         return res.status(200).json(files);
+      }
    } catch (error) {
       return res.status(405).json({ name: error.name, message: error.message });
    }
