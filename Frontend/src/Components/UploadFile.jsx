@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from './Configs/AxiosConfig';
 
 export default function UploadFile() {
@@ -11,6 +11,7 @@ export default function UploadFile() {
    const buttonRef = useRef();
    const dropRef = useRef();
    const inputRef = useRef();
+   const [filesRef, setFilesRef] = useState([]);
 
    const handleDrag = (e) => {
       e.preventDefault();
@@ -47,6 +48,10 @@ export default function UploadFile() {
          e.dataTransfer.clearData();
       }
    };
+
+   useEffect(() => {
+      setFilesRef((refs) => new Array(input.files.length).fill().map((_, index) => refs[index] || React.createRef()));
+   }, [input.files]);
 
    useEffect(() => {
       let form = dropRef.current;
@@ -89,21 +94,23 @@ export default function UploadFile() {
 
    const validateFile = () => {
       let isValid = true;
-      if (input && input.files.length > 0) {
-         input.files.forEach((file) => {
+      if (input && input.files.length > 0 && input.files.length <= 10) {
+         for(const file of input.files) {
             if (file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" &&
                file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
                file.type !== "application/pdf" &&
                !file.type.startsWith("image")) {
-               setError("Solo archivos de Word, Excel, PDF o de tipo imagen");
+               setError("Solo archivos Word, Excel, PDF o de imagen");
                isValid = false;
+               break;
             } else if (file.size > 1000 * 1000 * 30) {
-               setError("El archivo (o uno de ellos) es mayor de 30MB");
+               setError("El archivo (o uno de ellos) es mayor de 30 MB");
                isValid = false;
+               break;
             } else {
                setError("");
             }
-         })
+         }
       } else {
          setError("");
          isValid = false;
@@ -111,22 +118,47 @@ export default function UploadFile() {
       buttonRef.current.disabled = !isValid;
    }
 
+   const convertSize = (bytes) => {
+      let divider;
+      let size;
+      switch (true) {
+         case bytes.toString().length < 4:
+            divider = 1;
+            size = 'Bytes';
+            break;
+         case bytes.toString().length >= 4 && bytes.toString().length < 7:
+            divider = 1000;
+            size = 'KB';
+            break;
+         case bytes.toString().length >= 7:
+            divider = 1000000;
+            size = 'MB';
+            break;
+      }
+      return (bytes / divider).toFixed(2) + ' ' + size
+   }
+
    return (
       <div className='flex justify-center items-center bg-blue_bg bg-no-repeat bg-cover w-screen h-screen '>
-         <form onSubmit={fileSubmit} className='relative flex flex-col gap-[25px] p-[25px] bg-[#E9ECEF] w-[400px] h-[400px] rounded-[25px] items-center' name='fileUpload' ref={dropRef}>
+         <form onSubmit={fileSubmit} className='relative flex flex-col gap-[25px] p-[25px] bg-[#E9ECEF] w-[400px] h-fit rounded-[25px] items-center' name='fileUpload' ref={dropRef}>
             {dragging &&
                <div>
                   <p>Suelta tus archivos aquí</p>
                </div>
             }
-            <div className='w-[100px] h-[100px] flex items-center justify-center cursor-pointer bg-[#6AB547] rounded-full text-center ' onClick={() => inputRef.current.click()}>
+            <div className='w-[100px] h-[100px] flex items-center justify-center cursor-pointer bg-[#6AB547] rounded-full text-center' onClick={() => inputRef.current.click()}>
                <p className='text-[6rem] font-medium text-white'>+</p>
             </div>
-            <label htmlFor='selectFile' className='flex flex-col items-center'>
-               <span className='text-[20px]'>Selecciona los archivos</span>
-               <span className='text-[13px]'>o arrástralos</span>
-            </label>
-            <div className='border-[#CED4DA] border-y-[1px] w-full '></div>
+            <div className='flex flex-col gap-[10px] w-full'>
+               <label htmlFor='selectFile' className='flex flex-col items-center'>
+                  <span className='text-[20px]'>Selecciona los archivos</span>
+                  <span className='text-[13px]'>o arrástralos</span>
+               </label>
+               <div className='relative flex justify-center text-[12px]'>
+                  <p className='error'>{error}</p>
+               </div>
+            </div>
+            <div className='border-[#CED4DA] border-y-[1px] w-full'></div>
             <input
                className='hidden'
                ref={inputRef}
@@ -144,26 +176,26 @@ export default function UploadFile() {
                   }
                })}
             />
-            <div className='relative'>
-               <p className='error'>{error}</p>
-            </div>
-            <div className='flex flex-col'>
+            <menu className='flex flex-col gap-[5px] text-[10px] max-h-[150px] w-full overflow-y-auto'>
                {input && input.files.map((file, index) => {
                   return (
-                     <div key={index} className='flex justify-around'>
-                        <p>{file.name}</p>
-                        <p>{file.size}</p>
-                        <p>{file.type}</p>
-                        <input type="image" src="" alt="Quitar archivo" onClick={() => {
+                     <li key={index} ref={filesRef[index]} className='relative grid h-[2em] [grid-template-columns:1fr_0.7fr_1fr_0.1fr] gap-[10px]'>
+                        <p className='overflow-hidden whitespace-nowrap text-ellipsis'>{file.name}</p>
+                        <p>{convertSize(file.size)}</p>
+                        <p className='overflow-hidden whitespace-nowrap text-ellipsis'>{file.type}</p>
+                        <div className={`absolute right-0 cursor-pointer text-[10px] text-[#c93d3d] border-[2px] flex border-[#c93d3d] leading-3 justify-center items-center h-fit w-[15px] rounded-full`} onClick={() => {
                            let filesArray = [...input.files];
                            filesArray.splice(index, 1);
                            setInput((input) => ({ ...input, files: filesArray }));
-                        }} />
-                     </div>
+                        }}>X</div>
+                     </li>
                   )
                })}
+            </menu>
+            <div className='flex justify-center relative w-full'>
+               <button className='enabled:shadow-[0_4px_4px_0_#00000040] cursor-pointer disabled:cursor-default disabled:opacity-40 bg-[#00B4D8] text-white w-[135px] h-[50px] rounded-[25px]' type="submit" ref={buttonRef}>Subir</button>
+               {input.files.length > 0 && <p className={`absolute right-0 text-[12px] ${input.files.length > 10 ? 'text-[#c93d3d]' : 'text-[#6AB547]'}`}>{input.files.length}/10</p>}
             </div>
-            <button className='absolute bottom-[25px] enabled:shadow-[0_4px_4px_0_#00000040] cursor-pointer disabled:cursor-default disabled:opacity-40 bg-[#00B4D8] text-white w-[135px] h-[50px] rounded-[25px]' type="submit" ref={buttonRef}>Subir</button>
          </form>
       </div>
    )
