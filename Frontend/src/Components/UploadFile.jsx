@@ -67,6 +67,31 @@ export default function UploadFile() {
       };
    });
 
+   const mouseOver = (e) => {
+      e.target.classList.remove('hidden');
+      e.target.classList.add('flex');
+   }
+
+   const mouseOut = (e) => {
+      e.target.classList.remove('flex');
+      e.target.classList.add('hidden');
+   }
+
+   useEffect(() => {
+      for(let index = 0; index < filesRef.length; index++) {
+         let file = filesRef[index].current;
+         file.addEventListener('mouseover', mouseOver);
+         file.addEventListener('mouseout', mouseOut);
+      }
+      return () => {
+         for(let index = 0; index < filesRef.length; index++) {
+            let file = filesRef[index].current;
+            file.removeEventListener('mouseover', mouseOver);
+            file.removeEventListener('mouseout', mouseOut);
+         }
+      }
+   })
+
    const fileSubmit = async (e) => {
       e.preventDefault();
       try {
@@ -179,11 +204,11 @@ export default function UploadFile() {
             <menu className='flex flex-col gap-[5px] text-[10px] max-h-[150px] w-full overflow-y-auto'>
                {input && input.files.map((file, index) => {
                   return (
-                     <li key={index} ref={filesRef[index]} className='relative grid h-[2em] [grid-template-columns:1fr_0.7fr_1fr_0.1fr] gap-[10px]'>
+                     <li key={index} className='relative grid h-[2em] [grid-template-columns:1fr_0.7fr_1fr_0.1fr] gap-[10px]'>
                         <p className='overflow-hidden whitespace-nowrap text-ellipsis'>{file.name}</p>
                         <p>{convertSize(file.size)}</p>
                         <p className='overflow-hidden whitespace-nowrap text-ellipsis'>{file.type}</p>
-                        <div className={`absolute right-0 cursor-pointer text-[10px] text-[#c93d3d] border-[2px] flex border-[#c93d3d] leading-3 justify-center items-center h-fit w-[15px] rounded-full`} onClick={() => {
+                        <div className={`absolute right-0 cursor-pointer text-[10px] text-[#c93d3d] border-[2px] flex border-[#c93d3d] leading-3 justify-center items-center h-fit w-[15px] rounded-full`} ref={filesRef[index]} onClick={() => {
                            let filesArray = [...input.files];
                            filesArray.splice(index, 1);
                            setInput((input) => ({ ...input, files: filesArray }));
