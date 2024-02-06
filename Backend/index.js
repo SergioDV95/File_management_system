@@ -8,7 +8,7 @@ const corsOptions = {
    origin: [/localhost/],
    credentials: true,
    methods: 'GET,PATCH,POST,DELETE',
-   allowedHeaders: ['Content-Type']
+   allowedHeaders: ['Content-Type', 'Authorization']
 }
 
 mongoose.connect(process.env.CONN, {

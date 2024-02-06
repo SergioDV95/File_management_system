@@ -1,5 +1,28 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+@import url('https://fonts.googleapis.com/css2?family=Krona+One&display=swap');
 
-@layer components {}
+@layer components {
+   body {
+      @apply text-[16px] lg:text-[16px] w-full box-border font-krona text-[#707070]
+   }
+   .navbutton {
+      @apply flex items-center justify-center gap-[12px] text-[#637381] h-[48px] border-b-[1px] border-l-[1px] border-[#9BA4B4]
+   }
+   .dialog {
+      @apply max-lg:top-[300px] relative rounded-[20px]
+   }
+   .label {
+      @apply relative text-[18px] text-[#394867]
+   }
+   .data123 {
+      @apply border-[1px] border-[#9BA4B4] h-[35px] w-[225px] lg:w-full rounded-[10px] outline-none indent-1
+   }
+   .error {
+      @apply absolute max-lg:-top-[15px] indent-1 -bottom-[9px] text-[0.8em] [color:_rgb(255,0,0)]
+   }
+   #search {
+      @apply text-[#14274E] bg-[#F1F6F9] lg:bg-[#F8FAFC] indent-[10px] relative left-1 outline-none
+   }
+}

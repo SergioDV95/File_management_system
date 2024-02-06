@@ -110,24 +110,7 @@ router.get("/", async (req, res) => {
    }
 })
 
-router.post("/single", upload.single("file"), async (req, res) => {
-   try {
-      const uploadedFile = {
-         name: req.file.filename,
-         path: req.file.path,
-         size: req.file.size,
-         mimetype: req.file.mimetype,
-         encoding: req.file.encoding
-      }
-      const file = new Files(uploadedFile);
-      await file.save();
-      return res.status(200).send("Archivo cargado con éxito");
-   } catch (error) {
-      return res.status(405).json({ name: error.name, message: error.message });
-   }
-})
-
-router.post("/multiple", upload.array("files", 10), async (req, res) => {
+router.post("/", upload.array("files", 10), async (req, res) => {
    try {
       for(const file of req.files) {
          const uploadedFile = {
