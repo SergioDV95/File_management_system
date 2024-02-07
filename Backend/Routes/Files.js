@@ -80,8 +80,18 @@ router.get("/", async (req, res) => {
          }
          return res.status(200).download(file.path, file.name);
       } else {
-         const files = await Files.find();
-         return res.status(200).json(files);
+         const options = {
+            page: parseInt(req.query.page) || 1, 
+            limit: parseInt(req.query.limit) || 10
+         };
+         Files.paginate({}, options)
+            .then((files) => {
+               if(!files) {
+                  return res.status(404).send('Archivos no encontrados');
+               }
+               return res.status(200).json(files);
+            }
+         )
       }
    } catch (error) {
       return res.status(405).json({ name: error.name, message: error.message });

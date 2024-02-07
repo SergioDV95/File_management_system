@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 const { Schema } = mongoose;
 
 const fileSchema = new Schema({
@@ -22,6 +23,8 @@ const fileSchema = new Schema({
 }, {
    timestamps: true
 })
+
+fileSchema.plugin(mongoosePaginate);
 
 const Files = mongoose.model('Files', fileSchema);
 

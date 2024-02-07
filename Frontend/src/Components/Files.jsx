@@ -6,6 +6,7 @@ import { downloadSvg, trashSvg, wordSvg, excelSvg, pdfSvg, imageSvg } from '../e
 export default function Files() {
    const {filesUploaded} = useContext(filesUp);
    const [files, setFiles] = useState([]);
+   const [pagination, setPagination] = useState({})
    const [error, setError] = useState({
       name: ''
    });
@@ -16,21 +17,24 @@ export default function Files() {
    }, [files]);
 
    useEffect(() => {
-      const getFiles = async () => {
-         try {
-            const response = await axios.get(`/files`);
-            if (response.status === 200) {
-               setFiles(response.data);
-            }
-         } catch ({response}) {
-            if (response.data) {
-               const { name, message } = response.data;
-               setError((error) => ({...error, [name]: message}));
-            }
-         }
-      };
       getFiles();
    }, [filesUploaded]);
+   
+   const getFiles = async (pag) => {
+      try {
+         const page = pag ? `?page=${pag}` : '';
+         const response = await axios.get(`/files${page}`);
+         if (response.status === 200) {
+            setFiles([...response.data.docs]);
+            setPagination({...response.data});
+         }
+      } catch ({response}) {
+         if (response.data) {
+            const { name, message } = response.data;
+            setError((error) => ({...error, [name]: message}));
+         }
+      }
+   };
 
    const selectIcon = (file) => {
       let src;
@@ -162,6 +166,10 @@ export default function Files() {
             )
          })}
          </menu>
+         <div className='flex justify-end gap-[15px] px-[30px]'>
+            <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] shadow-[0_4px_3px_1px_#00000026]' onClick={() => getFiles(pagination.prevPage)}>Anterior</button>
+            <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] shadow-[0_4px_3px_1px_#00000026]' onClick={() => getFiles(pagination.nextPage)}>Siguiente</button>
+         </div>
       </section>
    )
 }
