@@ -73,18 +73,12 @@ const upload = multer({
 
 router.get("/", async (req, res) => {
    try {
-      if (req.query.name) {
-         const file = await Files.findOne({ name: req.query.name });
+      if (req.query.id) {
+         const file = await Files.findOne({ _id: req.query.id });
          if(!file) {
             return res.status(404).send('Archivo no encontrado');
          }
-         return res.status(200).download(file.path, file.name, (err) => {
-            if(err) {
-               return res.status(500).json({name: 'Download', message: 'Error al descargar el archivo'});
-            } else {
-               return res.status(200).send('Archivo descargado con éxito');
-            }
-         });
+         return res.status(200).download(file.path, file.name);
       } else {
          const files = await Files.find();
          return res.status(200).json(files);
@@ -142,7 +136,8 @@ router.patch("/", upload.single("file"), async (req, res) => {
 
 router.delete("/", async (req, res) => {
    try {
-      const file = await Files.findById(req.body.id);
+      const id = req.query._id;
+      const file = await Files.findById(id);
       if (!file) {
          return res.status(404).send('Archivo no encontrado');
       }
@@ -150,7 +145,7 @@ router.delete("/", async (req, res) => {
          if(err) res.status(500).send('Error al borrar el archivo');
          else {
             console.log('Archivo borrado');
-            Files.findByIdAndDelete(req.body.id)
+            Files.findByIdAndDelete(id)
                .then(() => res.status(200).send("Archivo eliminado con éxito"));
          }
       })

@@ -12,6 +12,9 @@ export default {
       fontFamily: {
         'krona': ['Krona One', 'sans-serif'],
       },
+      boxShadow: {
+        'button': '0 4px 4px 0 #00000040'
+      }
     },
   },
   plugins: [],
