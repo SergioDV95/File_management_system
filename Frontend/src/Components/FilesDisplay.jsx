@@ -3,23 +3,22 @@ import filesUp from './Configs/Context';
 import axios from './Configs/AxiosConfig';
 import { downloadSvg, trashSvg, wordSvg, excelSvg, pdfSvg, imageSvg } from '../exports';
 
-export default function Files() {
+export default function FilesDisplay() {
+   //contexto para actualizar la lista al subir nuevos archivos
    const {filesUploaded} = useContext(filesUp);
+   //estado para mostrar los archivos
    const [files, setFiles] = useState([]);
-   const [pagination, setPagination] = useState({})
-   const [error, setError] = useState({
-      name: ''
-   });
-   const [fileRef, setFileRef] = useState([]);
+   //estado para la paginación
+   const [pagination, setPagination] = useState({});
 
-   useEffect(() => {
-      setFileRef((refs) => new Array(files.length).fill().map((_, index) => refs[index] || React.createRef()));
-   }, [files]);
-
+   //efectos
+   //efecto que vuelve a ejecutar la función cuando se actualiza la lista de archivos
    useEffect(() => {
       getFiles();
    }, [filesUploaded]);
    
+   //funciones
+   //traer los archivos del servidor y definir la paginación
    const getFiles = async (pag) => {
       try {
          const page = pag ? `?page=${pag}` : '';
@@ -36,6 +35,7 @@ export default function Files() {
       }
    };
 
+   //seleccionar icono del archivo por su tipo
    const selectIcon = (file) => {
       let src;
       if (file.mimetype === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
@@ -50,6 +50,7 @@ export default function Files() {
       return <img src={src} alt={file.name} />
    }
 
+   //convertir tipo de archivo a una palabra clave más fácil de identificar
    const convertType = (mime) => {
       let type;
       if (mime === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
@@ -78,6 +79,7 @@ export default function Files() {
       return type
    }
 
+   //convertir tamaño del archivo dependiendo de su peso en Bytes
    const convertSize = (bytes) => {
       let divider;
       let size;
@@ -98,6 +100,7 @@ export default function Files() {
       return (bytes / divider).toFixed(2) + ' ' + size
    }
 
+   //borrar el archivo del servidor
    const deleteFile = async (_id) => {
       try {
          const response = await axios.delete(`/files?_id=${_id}`);
@@ -112,12 +115,15 @@ export default function Files() {
       }
    }
 
+   //descargar el archivo
    const downloadFile = async (file) => {
       try {
          const response = await axios.get(`/files?id=${file._id}`, { 
             responseType: 'blob' 
          });
          if (response.status === 200) {
+            /*instanciar un objeto Blob que reciba la respuesta del servidor y un objeto URL apartir de él,
+             para asociar con el elemento del hipervínculo creado*/
             const url = URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
@@ -166,9 +172,12 @@ export default function Files() {
             )
          })}
          </menu>
-         <div className='flex justify-end gap-[15px] px-[30px]'>
-            <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] shadow-[0_4px_3px_1px_#00000026]' onClick={() => getFiles(pagination.prevPage)}>Anterior</button>
-            <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] shadow-[0_4px_3px_1px_#00000026]' onClick={() => getFiles(pagination.nextPage)}>Siguiente</button>
+         <div className='flex justify-between gap-[15px] px-[30px]'>
+            {pagination && <p>Página {pagination.page} de {pagination.totalPages}</p>}
+            <div className='flex gap-[15px]'>
+               <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] shadow-[0_4px_3px_1px_#00000026]' onClick={() => getFiles(pagination.prevPage)}>Anterior</button>
+               <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] shadow-[0_4px_3px_1px_#00000026]' onClick={() => getFiles(pagination.nextPage)}>Siguiente</button>
+            </div>
          </div>
       </section>
    )

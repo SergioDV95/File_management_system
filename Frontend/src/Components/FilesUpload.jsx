@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import filesUp from './Configs/Context';
 import axios from './Configs/AxiosConfig';
 
-export default function UploadFile() {
+export default function FilesUpload() {
    const {setFilesUploaded} = useContext(filesUp);
    //Estados
    //manejo de archivos
