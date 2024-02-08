@@ -178,13 +178,13 @@ export default function FilesDisplay() {
             })}
             </menu>
          </div>
-         <div className='flex justify-between items-center gap-[15px] px-[30px]'>
-            {Object.keys(pagination).length > 0 && <p>Página {pagination.page} de {pagination.totalPages}</p>}
+         {Object.keys(pagination).length > 0 && (<div className='flex justify-between items-center gap-[15px] px-[30px]'>
+            <p>Página {pagination.page} de {pagination.totalPages}</p>
             <div className='flex gap-[15px]'>
-               <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] enabled:shadow-[0_4px_3px_1px_#00000026] disabled:opacity-50' disabled={!pagination.hasPrevPage} onClick={() => getFiles(pagination.prevPage)}>Anterior</button>
-               <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] enabled:shadow-[0_4px_3px_1px_#00000026] disabled:opacity-50' disabled={!pagination.hasNextPage} onClick={() => getFiles(pagination.nextPage)}>Siguiente</button>
+               <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] enabled:shadow-[0_4px_3px_1px_#00000026] disabled:opacity-60' disabled={!pagination.hasPrevPage} onClick={() => getFiles(pagination.prevPage)}>Anterior</button>
+               <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] enabled:shadow-[0_4px_3px_1px_#00000026] disabled:opacity-60' disabled={!pagination.hasNextPage} onClick={() => getFiles(pagination.nextPage)}>Siguiente</button>
             </div>
-         </div>
+         </div>)}
       </section>
    )
 }
