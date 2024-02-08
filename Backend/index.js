@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
 const filesRouter = require('./Routes/Files');
+//agregar el array de IPs permitidas
 const corsOptions = {
    origin: [/localhost/],
    credentials: true,

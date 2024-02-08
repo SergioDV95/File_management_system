@@ -155,8 +155,8 @@ export default function FilesDisplay() {
             </li>
          {files && files.map((file) => {
             return (
-               <li className='grid [grid-template-columns:3fr_1.5fr_1fr_repeat(2,0.3fr)] px-[30px] gap-[20px] justify-center items-center h-[50px] border-[#CED4DA] border-b-[1px] ' key={file._id}>
-                  <figure className='flex items-center gap-[10px] '>
+               <li className='grid [grid-template-columns:3fr_1.5fr_1fr_repeat(2,0.3fr)] px-[30px] gap-[20px] justify-center items-center h-[3lh] border-[#CED4DA] border-b-[1px] ' key={file._id}>
+                  <figure className='flex items-center gap-[10px] [overflow-wrap:anywhere] h-full '>
                      {selectIcon(file)}
                      <p>{file.name}</p>
                   </figure>
@@ -172,8 +172,8 @@ export default function FilesDisplay() {
             )
          })}
          </menu>
-         <div className='flex justify-between gap-[15px] px-[30px]'>
-            {pagination && <p>Página {pagination.page} de {pagination.totalPages}</p>}
+         <div className='flex justify-between items-end gap-[15px] px-[30px]'>
+            {Object.keys(pagination).length > 0 && <p>Página {pagination.page} de {pagination.totalPages}</p>}
             <div className='flex gap-[15px]'>
                <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] shadow-[0_4px_3px_1px_#00000026]' onClick={() => getFiles(pagination.prevPage)}>Anterior</button>
                <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] shadow-[0_4px_3px_1px_#00000026]' onClick={() => getFiles(pagination.nextPage)}>Siguiente</button>
