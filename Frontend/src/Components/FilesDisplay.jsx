@@ -14,7 +14,11 @@ export default function FilesDisplay() {
    //efectos
    //efecto que vuelve a ejecutar la función cuando se actualiza la lista de archivos
    useEffect(() => {
-      getFiles();
+      if (pagination.page) {
+         getFiles(pagination.page);
+      } else {
+         getFiles();
+      }
    }, [filesUploaded]);
    
    //funciones
@@ -142,41 +146,43 @@ export default function FilesDisplay() {
    }
 
    return (
-      <section className='flex flex-col gap-[20px]'>
-         <div className='flex px-[30px] items-center w-full border-[#CED4DA] border-b-[1px] h-[85px] '>
-            <h4>ARCHIVOS SUBIDOS</h4>
-         </div>
-         <menu className='flex flex-col text-[11px]'>
-            <li className='grid [grid-template-columns:3fr_1.5fr_1fr_0.8fr] px-[30px] gap-[20px] justify-center items-center text-[#C0C0C0] h-[50px] border-[#CED4DA] border-b-[1px] '>
-               <p>NOMBRE</p>
-               <p>TIPO</p>
-               <p>PESO</p>
-               <p>OPCIONES</p>
-            </li>
-         {files && files.map((file) => {
-            return (
-               <li className='grid [grid-template-columns:3fr_1.5fr_1fr_repeat(2,0.3fr)] px-[30px] gap-[20px] justify-center items-center h-[3lh] border-[#CED4DA] border-b-[1px] ' key={file._id}>
-                  <figure className='flex items-center gap-[10px] [overflow-wrap:anywhere] h-full '>
-                     {selectIcon(file)}
-                     <p>{file.name}</p>
-                  </figure>
-                  <p>{convertType(file.mimetype)}</p>
-                  <p>{convertSize(file.size)}</p>
-                  <button className='flex justify-center items-center rounded-full w-fit px-[6px] h-[35px] bg-[#00B4D8] gap-[5px] shadow-button' onClick={() => downloadFile(file)}>
-                     <img src={downloadSvg} alt="Descarga" />
-                  </button>
-                  <div className='flex justify-center items-center rounded-full w-fit px-[8px] h-[35px] bg-[#F41B05] shadow-button'>
-                     <input type='image' src={trashSvg} alt='Eliminar' onClick={() => deleteFile(file._id)} />
-                  </div>
+      <section className='flex flex-col justify-between h-full pb-[50px] '>
+         <div className='flex flex-col gap-[20px]'>
+            <div className='flex px-[30px] items-center w-full border-[#CED4DA] border-b-[1px] h-[85px] '>
+               <h4>ARCHIVOS SUBIDOS</h4>
+            </div>
+            <menu className='flex flex-col text-[11px]'>
+               <li className='grid [grid-template-columns:3fr_1.5fr_1fr_0.8fr] px-[30px] gap-[20px] justify-center items-center text-[#C0C0C0] h-[50px] border-[#CED4DA] border-b-[1px] '>
+                  <p>NOMBRE</p>
+                  <p>TIPO</p>
+                  <p>PESO</p>
+                  <p>OPCIONES</p>
                </li>
-            )
-         })}
-         </menu>
-         <div className='flex justify-between items-end gap-[15px] px-[30px]'>
+            {files && files.map((file) => {
+               return (
+                  <li className='grid [grid-template-columns:3fr_1.5fr_1fr_repeat(2,0.3fr)] px-[30px] gap-[20px] justify-center items-center h-[3lh] border-[#CED4DA] border-b-[1px] ' key={file._id}>
+                     <figure className='flex items-center gap-[10px] [overflow-wrap:anywhere] overflow-y-auto h-full '>
+                        {selectIcon(file)}
+                        <p>{file.name}</p>
+                     </figure>
+                     <p>{convertType(file.mimetype)}</p>
+                     <p>{convertSize(file.size)}</p>
+                     <button className='flex justify-center items-center rounded-full w-fit px-[6px] h-[35px] bg-[#00B4D8] gap-[5px] shadow-button' onClick={() => downloadFile(file)}>
+                        <img src={downloadSvg} alt="Descarga" />
+                     </button>
+                     <div className='flex justify-center items-center rounded-full w-fit px-[8px] h-[35px] bg-[#F41B05] shadow-button'>
+                        <input type='image' src={trashSvg} alt='Eliminar' onClick={() => deleteFile(file._id)} />
+                     </div>
+                  </li>
+               )
+            })}
+            </menu>
+         </div>
+         <div className='flex justify-between items-center gap-[15px] px-[30px]'>
             {Object.keys(pagination).length > 0 && <p>Página {pagination.page} de {pagination.totalPages}</p>}
             <div className='flex gap-[15px]'>
-               <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] shadow-[0_4px_3px_1px_#00000026]' onClick={() => getFiles(pagination.prevPage)}>Anterior</button>
-               <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] shadow-[0_4px_3px_1px_#00000026]' onClick={() => getFiles(pagination.nextPage)}>Siguiente</button>
+               <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] enabled:shadow-[0_4px_3px_1px_#00000026] disabled:opacity-50' disabled={!pagination.hasPrevPage} onClick={() => getFiles(pagination.prevPage)}>Anterior</button>
+               <button className='h-[50px] w-[135px] bg-[#e9e9e9] rounded-[25px] enabled:shadow-[0_4px_3px_1px_#00000026] disabled:opacity-50' disabled={!pagination.hasNextPage} onClick={() => getFiles(pagination.nextPage)}>Siguiente</button>
             </div>
          </div>
       </section>
