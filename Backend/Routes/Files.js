@@ -82,7 +82,7 @@ router.get("/", async (req, res) => {
       } else {
          const options = {
             page: parseInt(req.query.page) || 1, 
-            limit: parseInt(req.query.limit) || 10
+            limit: parseInt(req.query.limit) || 8
          };
          Files.paginate({}, options)
             .then((files) => {

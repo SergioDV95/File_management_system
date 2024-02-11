@@ -110,6 +110,7 @@ export default function FilesDisplay() {
          const response = await axios.delete(`/files?_id=${_id}`);
          if (response.status === 200) {
             setFiles(files.filter((file) => file._id !== _id));
+            getFiles(pagination.page);
          }
       } catch ({response}) {
          if (response.data) {
@@ -146,7 +147,7 @@ export default function FilesDisplay() {
    }
 
    return (
-      <section className='flex flex-col justify-between h-full pb-[50px] '>
+      <section className='flex flex-col justify-between h-full pb-[25px] '>
          <div className='flex flex-col gap-[20px]'>
             <div className='flex px-[30px] items-center w-full border-[#CED4DA] border-b-[1px] h-[85px] '>
                <h4>ARCHIVOS SUBIDOS</h4>
@@ -160,17 +161,17 @@ export default function FilesDisplay() {
                </li>
             {files && files.map((file) => {
                return (
-                  <li className='grid [grid-template-columns:3fr_1.5fr_1fr_repeat(2,0.3fr)] px-[30px] gap-[20px] justify-center items-center h-[3lh] border-[#CED4DA] border-b-[1px] ' key={file._id}>
+                  <li className='grid [grid-template-columns:3fr_1.5fr_1fr_repeat(2,0.3fr)] px-[30px] gap-[15px] justify-center items-center h-[3lh] border-[#CED4DA] border-b-[1px] ' key={file._id}>
                      <figure className='flex items-center gap-[10px] [overflow-wrap:anywhere] overflow-y-auto h-full '>
                         {selectIcon(file)}
                         <p>{file.name}</p>
                      </figure>
                      <p>{convertType(file.mimetype)}</p>
                      <p>{convertSize(file.size)}</p>
-                     <button className='flex justify-center items-center rounded-full w-fit px-[6px] h-[35px] bg-[#00B4D8] gap-[5px] shadow-button' onClick={() => downloadFile(file)}>
+                     <button className='flex justify-center items-center rounded-full w-[35px] px-[6px] h-[35px] bg-[#00B4D8] gap-[5px] shadow-button' onClick={() => downloadFile(file)}>
                         <img src={downloadSvg} alt="Descarga" />
                      </button>
-                     <div className='flex justify-center items-center rounded-full w-fit px-[8px] h-[35px] bg-[#F41B05] shadow-button'>
+                     <div className='flex justify-center items-center rounded-full w-[35px] px-[8px] h-[35px] bg-[#F41B05] shadow-button'>
                         <input type='image' src={trashSvg} alt='Eliminar' onClick={() => deleteFile(file._id)} />
                      </div>
                   </li>
