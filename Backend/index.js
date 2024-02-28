@@ -1,28 +1,34 @@
-const express = require('express');
-require('dotenv').config();
+const express = require("express");
+require("dotenv").config();
 const app = express();
-const cors = require('cors');
-const mongoose = require('mongoose');
-const filesRouter = require('./Routes/Files');
+const cors = require("cors");
+const mongoose = require("mongoose");
+const filesRouter = require("./Routes/Files");
+const authenticate = require("./Controllers/Authenticate");
 //agregar el array de IPs permitidas
 const corsOptions = {
-   origin: [/localhost/],
-   credentials: true,
-   methods: 'GET,PATCH,POST,DELETE',
-   allowedHeaders: ['Content-Type', 'Authorization']
-}
+  origin: [/localhost/],
+  credentials: true,
+  methods: "GET,PATCH,POST,DELETE",
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-mongoose.connect(process.env.CONN, {
-   dbName: process.env.DB
-}).then(
-   () => console.log('MongoDB connected'),
-   err => console.log(err)
-);
+mongoose
+  .connect(process.env.CONN, {
+    dbName: process.env.DB,
+  })
+  .then(
+    () => console.log("MongoDB connected"),
+    (err) => console.log(err)
+  );
 
 app.use(cors(corsOptions));
+app.use(authenticate);
 
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 app.use("/files", filesRouter);
 
-app.listen(parseInt(process.env.PORT), () => console.log(`Server running on port ${process.env.PORT}`));
+app.listen(parseInt(process.env.PORT), () =>
+  console.log(`Server running on port ${process.env.PORT}`)
+);
