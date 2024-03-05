@@ -48,17 +48,18 @@ const authenticate = async (req, res, next) => {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      req.customer = await checkCustomerAndSave(decoded);
+      req.customer = await decoded;
+      console.log("req.customer", req.customer);
 
       if (!req.customer) {
         return res.status(401).json({ message: "Unauthorized" });
-      } else if (req.customer.license.status === "inactivo") {
+      } else if (req.customer.licence.status === "inactivo") {
         return res.status(401).json({ message: "Unauthorized" });
-      } else if (req.customer.license.expiration_license < Date.now()) {
+      } else if (req.customer.licence.expiration_license < Date.now()) {
         return res.status(401).json({ message: "Unauthorized" });
-      } else if (req.customer.license.expiration_system < Date.now()) {
+      } else if (req.customer.licence.expiration_system < Date.now()) {
         return res.status(401).json({ message: "Unauthorized" });
-      } else if (req.customer.license.active === false) {
+      } else if (req.customer.licence.active === false) {
         return res.status(401).json({ message: "Unauthorized" });
       } else {
         next();
