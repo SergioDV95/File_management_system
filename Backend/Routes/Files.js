@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Files = require("../Models/Files");
+const { Customer } = require("../Models/Customer");
 const fs = require("fs");
 const multer = require("multer");
 const iconv = require("iconv-lite");
@@ -88,31 +89,33 @@ const upload = multer({
 
 router.get("/", async (req, res) => {
   try {
-    if (!req.customer) {
-      return res.status(401).json({ message: "Unauthorized" });
+    const customer_id = req.query.customer_id; // Obtener el customer_id desde la query
+    if (!customer_id) {
+      return res.status(400).json({ message: "customer_id is required" });
     }
-    const customer_id = req.customer.customer_id;
-    if (req.query.id) {
-      const file = await Files.findOne({
-        _id: req.query.id,
-        customer_id: customer_id,
-      });
-      if (!file) {
-        return res.status(404).send("Archivo no encontrado");
-      }
-      return res.status(200).download(file.path, file.name);
-    } else {
-      const options = {
-        page: parseInt(req.query.page) || 1,
-        limit: parseInt(req.query.limit) || 8,
-      };
-      Files.paginate({ customer_id: customer_id }, options).then((files) => {
-        if (!files) {
-          return res.status(404).send("Archivos no encontrados");
-        }
-        return res.status(200).json(files);
-      });
+
+    const customer = await Customer.findOne({ customer_id: customer_id });
+
+    const options = {
+      page: parseInt(req.query.page) || 1,
+      limit: parseInt(req.query.limit) || 8,
+    };
+
+    const filter = {};
+
+    const files = await Files.paginate(
+      {
+        customer_id: customer._id,
+        ...filter,
+      },
+      options
+    );
+
+    if (!files) {
+      return res.status(404).json({ message: "No se encontraron archivos" });
     }
+
+    return res.status(200).json(files);
   } catch (error) {
     return res.status(405).json({ name: error.name, message: error.message });
   }
@@ -120,10 +123,12 @@ router.get("/", async (req, res) => {
 
 router.post("/", upload.array("files", 10), async (req, res) => {
   try {
-    if (!req.customer) {
+    if (!req.body.customer_id) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    const customer_id = req.customer.customer_id;
+    const customer_id = req.body.customer_id;
+
+    const customer = await Customer.findOne({ customer_id: customer_id });
     for (const file of req.files) {
       const uploadedFile = {
         name: file.filename,
@@ -131,8 +136,9 @@ router.post("/", upload.array("files", 10), async (req, res) => {
         size: file.size,
         mimetype: file.mimetype,
         encoding: file.encoding,
+        customer_id: customer._id,
       };
-      const newFile = new Files({ ...uploadedFile, customer_id: customer_id });
+      const newFile = new Files({ ...uploadedFile });
       await newFile.save();
     }
     return res.status(200).send("Archivos cargados con éxito");
@@ -141,15 +147,13 @@ router.post("/", upload.array("files", 10), async (req, res) => {
   }
 });
 
-router.patch("/", upload.single("file"), async (req, res) => {
+router.patch("/:id", upload.single("file"), async (req, res) => {
   try {
-    if (!req.customer) {
+    if (!req.params.id) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    const customer_id = req.customer.customer_id;
     const file = await Files.findById({
       _id: req.query._id,
-      customer_id: customer_id,
     });
     if (!file) {
       return res.status(404).send("Archivo no encontrado");
@@ -175,16 +179,14 @@ router.patch("/", upload.single("file"), async (req, res) => {
   }
 });
 
-router.delete("/", async (req, res) => {
+router.delete("/:_id", async (req, res) => {
   try {
-    if (!req.customer) {
+    if (!req.params._id) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    const customer_id = req.customer.customer_id;
-    const id = req.query._id;
+    const _id = req.params._id;
     const file = await Files.findById({
-      _id: id,
-      customer_id: customer_id,
+      _id: _id,
     });
     if (!file) {
       return res.status(404).send("Archivo no encontrado");

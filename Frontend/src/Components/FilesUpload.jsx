@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import filesUp from "./Configs/Context";
 import axios from "axios";
 
@@ -12,8 +12,6 @@ export default function FilesUpload() {
   });
   //manejo de error
   const [error, setError] = useState("");
-  // manejo de clientes
-  const [customers, setCustomers] = useState([]);
   //visualiza el párrafo de soltar archivos si está en true
   const [dragging, setDragging] = useState(false);
   //visualiza el botón de quitar archivo al pasar el cursor
@@ -72,15 +70,6 @@ export default function FilesUpload() {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setInput((prevInput) => ({
-      ...prevInput,
-      [name]: value,
-    }));
-  };
-
   //método POST al servidor
   const fileSubmit = async (e) => {
     e.preventDefault();
@@ -96,7 +85,9 @@ export default function FilesUpload() {
         });
 
         // Agregar directamente el customer_id al FormData
-        formData.append("customer_id", input.customer_id);
+
+        const customer_id = localStorage.getItem("customer_id");
+        formData.append("customer_id", customer_id);
 
         const token = localStorage.getItem("token");
 
@@ -106,10 +97,10 @@ export default function FilesUpload() {
           formData,
           {
             headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${token}`,
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "multipart/form-data"
             },
-            withCredentials: true,
+            withCredentials: true, // Esto es importante
           }
         );
 
@@ -136,9 +127,9 @@ export default function FilesUpload() {
       for (const file of input.files) {
         if (
           file.type !==
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" &&
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" &&
           file.type !==
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
           file.type !== "application/pdf" &&
           !file.type.startsWith("image")
         ) {
@@ -211,16 +202,7 @@ export default function FilesUpload() {
 
   // peticion a la base de datos
   useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const response = await axios.get("http://localhost:3004/customers/");
-        setCustomers(response.data.docs);
-      } catch (error) {
-        console.log(error);
-      }
-    };
 
-    fetchCustomers();
   }, []);
 
   return (
@@ -295,9 +277,8 @@ export default function FilesUpload() {
                   {file.type}
                 </p>
                 <div
-                  className={`${
-                    hoverIndex === index ? "flex" : "hidden"
-                  } absolute right-0 cursor-pointer text-[10px] text-[#c93d3d] font-semibold border-[2px] border-[#c93d3d] leading-3 justify-center items-center h-fit w-[15px] rounded-full`}
+                  className={`${hoverIndex === index ? "flex" : "hidden"
+                    } absolute right-0 cursor-pointer text-[10px] text-[#c93d3d] font-semibold border-[2px] border-[#c93d3d] leading-3 justify-center items-center h-fit w-[15px] rounded-full`}
                   onClick={() => {
                     let filesArray = [...input.files];
                     filesArray.splice(index, 1);
@@ -320,29 +301,12 @@ export default function FilesUpload() {
         </button>
         {input.files.length > 0 && (
           <p
-            className={`absolute right-0 text-[12px] ${
-              input.files.length > 10 ? "text-[#FF0000]" : "text-[#6AB547]"
-            }`}
+            className={`absolute right-0 text-[12px] ${input.files.length > 10 ? "text-[#FF0000]" : "text-[#6AB547]"
+              }`}
           >
             {input.files.length}/10
           </p>
         )}
-      </div>
-      <div className=" w-full">
-        <select
-          name="customer_id"
-          value={input.customer_id}
-          onChange={handleChange}
-          className="mt-1 p-2 border rounded-md w-full focus:outline-none focus:border-blue-500"
-        >
-          <option value="">Seleccionar cliente</option>
-          {customers &&
-            customers.map((customer) => (
-              <option key={customer._id} value={customer._id}>
-                {customer.name}
-              </option>
-            ))}
-        </select>
       </div>
     </form>
   );

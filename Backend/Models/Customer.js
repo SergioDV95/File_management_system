@@ -8,6 +8,9 @@ const customerSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
+  is_active: {
+    type: Boolean,
+  },
   customer_id: {
     type: String,
     unique: true,
@@ -34,4 +37,4 @@ const checkCustomerAndSave = async (customerData) => {
   }
 };
 
-module.exports = Customer;
+module.exports = { Customer, checkCustomerAndSave };

@@ -22,6 +22,7 @@ const Login = () => {
       console.log("Server response:", response.data);
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("customer_id", response.data.customer_id);
         navigate("/layout");
       }
     } catch (error) {

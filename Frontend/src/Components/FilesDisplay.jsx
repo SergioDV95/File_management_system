@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import filesUp from "./Configs/Context";
 import axios from "axios";
 import {
@@ -26,25 +26,31 @@ export default function FilesDisplay() {
     } else {
       getFiles();
     }
+    // eslint-disable-next-line
   }, [filesUploaded]);
 
   //funciones
   //traer los archivos del servidor y definir la paginación
   const token = localStorage.getItem("token");
+  const customer_id = localStorage.getItem("customer_id");
   const getFiles = async (pag) => {
     try {
       const page = pag ? `?page=${pag}` : "";
-      const response = await axios.get(`http://localhost:4000/files${page}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await axios.get(`http://localhost:4000/files/?customer_id=${customer_id}${page}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
       if (response.status === 200) {
         setFiles([...response.data.docs]);
+        console.log(response.data);
         setPagination({ ...response.data });
       }
     } catch ({ response }) {
       if (response.data) {
         const { name, message } = response.data;
-        setError((error) => ({ ...error, [name]: message }));
+        console.error(`${name}: ${message}`);
       }
     }
   };
@@ -131,22 +137,28 @@ export default function FilesDisplay() {
     const token = localStorage.getItem("token");
     try {
       const response = await axios.delete(
-        `http://localhost:4000/files?_id=${_id}`,
+        `http://localhost:4000/files/${_id}`, // Cambiado aquí
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+          },
         }
       );
       if (response.status === 200) {
         setFiles(files.filter((file) => file._id !== _id));
         getFiles(pagination.page);
+        alert("Archivo eliminado");
       }
     } catch ({ response }) {
       if (response.data) {
         const { name, message } = response.data;
-        setError((error) => ({ ...error, [name]: message }));
+        console.error(`${name}: ${message}`);
       }
     }
   };
+
 
   //descargar el archivo
   const downloadFile = async (file) => {
